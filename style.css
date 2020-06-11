@@ -1,0 +1,47 @@
+#calculator-main {
+  margin: 0 auto;
+  height: 292px;
+  width: 200px;
+  background-color: grey;
+}
+
+#equals, #add {
+  height: 100px;
+  width: 50px;
+}
+
+#one, #two, #three, #four, #five, #six, #seven, #eight, #nine, #subtract, #multiply, #divide, #decimal {
+  height: 50px;
+  width: 50px;
+}
+
+#clear {
+  height: 50px;
+  width: 50px;
+  background-color: #FF3030;
+}
+
+#zero {
+  height: 50px;
+  width: 100px;
+}
+
+#formula {
+  height: 18px;
+  width: 200px;
+  text-align: right;
+  font-family: Courier;
+  background-color: black;
+  color: white;
+  font-size: 12pt;
+}
+
+#display {
+  height: 26px;
+  width: 200px;
+  text-align: right;
+  font-family: Courier;
+  background-color: black;
+  color: white;
+  font-size: 18pt;
+}

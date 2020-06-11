@@ -1,0 +1,240 @@
+class CalcButton extends React.Component {
+  render() {
+    return (
+      <button id={this.props.id} onClick={this.props.applyValue} value={this.props.value}>{this.props.value}</button>
+    )
+  }
+}
+
+class Formula extends React.Component {
+  render() {
+    return (
+      <div id="formula">
+        {this.props.formula}
+      </div>
+    );
+  }
+}
+
+class Output extends React.Component {
+  render() {
+    return(
+      <div id="display">
+        {this.props.current}
+      </div>
+    )
+  }
+}
+
+class Calculator extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      current: "0",
+      formula: "",
+      prevVal: "",
+      decEnabled: 0
+    }
+    this.applyValue = this.applyValue.bind(this);
+    this.applyClear = this.applyClear.bind(this);
+    this.applyOperator = this.applyOperator.bind(this);
+    this.applyDecimal = this.applyDecimal.bind(this);
+    this.evaluate = this.evaluate.bind(this);
+  }
+  
+  applyClear(e) {
+    this.setState({
+      current: "0",
+      formula: "",
+      prevVal: "",
+      decEnabled: 0
+    })
+  }
+  
+  applyValue(e) {
+    const value = e.target.value;
+    const {prevVal, current, formula} = this.state;
+    this.setState({
+        current: 
+          current === "0"// && current.match(/[\+\*\/]/)
+            ? value
+            : current + value,
+        formula: 
+          current === "0"// || current.match(/[\+\*\/]/)
+            ? value
+            : formula + value
+      });
+    
+    this.setState({
+      prevVal: value
+    })
+  }
+  
+  applyDecimal(e) {
+    const value = e.target.value;
+    const {prevVal, decEnabled, current, formula} = this.state;
+      this.setState({
+      current: 
+        decEnabled === 1
+          ? current
+          : current + value,
+      formula: 
+        decEnabled === 1
+          ? formula
+          : formula + value
+    });
+    this.setState({
+      decEnabled: 1
+    })
+  }
+  
+  applyOperator(e) {
+    const operator = e.target.value;
+    const {current, formula} = this.state;
+    if (operator === "-" && current !== "-") {
+      this.setState({
+        current: operator,
+        formula: formula + operator,
+        decEnabled: 0
+      });
+    }
+    else if (current !== "+" && current !== "*" && current !== "/" && current !== "-" && current !== "0") {
+      this.setState({
+        current: operator,
+        formula: formula + operator,
+        decEnabled: 0
+      });
+    }
+    else if (current === "-" && formula.length !== 1) {
+      console.log(formula[formula.length - 2]);
+      if (formula[formula.length - 2].match(/[\+\*\/]/)) {
+        this.setState({
+          current: operator,
+          formula: formula.substring(0, formula.length - 2) + operator,
+          decEnabled: 0
+        });
+      }
+      else {
+        this.setState({
+          current: operator,
+          formula: formula.substring(0, formula.length - 1) + operator,
+          decEnabled: 0
+        });
+      }
+    }
+    else {
+      console.log(formula.substring(0,formula.length - 1));
+      this.setState({
+        current: operator,
+        formula: formula.substring(0, formula.length - 1) + operator,
+        decEnabled: 0
+      });
+    }
+    
+  }
+  
+  evaluate(e) {
+    const formula = this.state.formula;
+    const formulaPiecesRaw = formula.split(/(\+|\-|\*|\/)/)
+    const formulaPiecesValues = formulaPiecesRaw.filter((i) => {
+      return i != "";
+    });
+    // First iteration to combine "-" with values
+    const formulaPieces = [];
+    for (let i = 0; i < formulaPiecesValues.length; i++) {
+      let current = formulaPiecesValues[i];
+      if (current == "-") {
+        if (i == 0) {
+          current += formulaPiecesValues[i+1];
+          i++;
+        }
+        else if (formulaPiecesValues[i-1].match(/[\+\*\/]/)) {
+          current += formulaPiecesValues[i+1];
+          i++;
+          console.log(current);
+        }
+      }
+      formulaPieces.push(current);
+    }
+    console.log(formulaPieces);
+    let i = 1, currentValue = parseFloat(formulaPieces[0]);
+    while (i < formulaPieces.length) {
+      switch(formulaPieces[i]) {
+        case "+":
+          currentValue += parseFloat(formulaPieces[i+1]);                     break;
+        case "-":
+          currentValue -= parseFloat(formulaPieces[i+1]);
+          break;
+        case "*":
+          currentValue *= parseFloat(formulaPieces[i+1]);
+          break;
+        case "/":
+          currentValue /= parseFloat(formulaPieces[i+1]);
+          break;
+      }
+      i += 2;
+    }
+    this.setState({
+      current: currentValue,
+      formula: currentValue,
+      decEnabled: 0
+    });
+  }
+  
+  render() {
+    return (
+      <div className="container-fluid">
+        <div className="row">
+          <Formula formula={this.state.formula} />
+        </div>
+        <div className="row">
+          <Output current={this.state.current} />
+        </div>
+        <div className="row">
+          <div>
+            <CalcButton id="clear" applyValue={this.applyClear} value="C" />
+            <CalcButton id="divide" applyValue={this.applyOperator} value="/" />
+            <CalcButton id="multiply" applyValue={this.applyOperator} value="*" />
+            <CalcButton id="subtract" applyValue={this.applyOperator} value="-" />
+          </div>
+        </div>
+        <div className="row">
+          <div>
+            <div>
+              <CalcButton id="seven" applyValue={this.applyValue} value="7" />
+              <CalcButton id="eight" applyValue={this.applyValue} value="8" />
+              <CalcButton id="nine" applyValue={this.applyValue} value="9" />
+            </div>
+            <div>
+              <CalcButton id="four" applyValue={this.applyValue} value="4" />
+              <CalcButton id="five" applyValue={this.applyValue} value="5" />
+              <CalcButton id="six" applyValue={this.applyValue} value="6" />
+            </div>
+          </div>
+            <div>
+              <CalcButton id="add" applyValue={this.applyOperator} value="+" />
+            </div>
+        </div>
+        <div className="row">
+          <div>
+            <div>
+              <CalcButton id="one" applyValue={this.applyValue} value="1" />
+              <CalcButton id="two" applyValue={this.applyValue} value="2" />
+              <CalcButton id="three" applyValue={this.applyValue} value="3" />
+            </div>
+            <div>
+              <CalcButton id="zero" applyValue={this.applyValue} value="0" />
+              <CalcButton id="decimal" applyValue={this.applyDecimal} value="." />
+            </div>
+          </div>
+          <div>
+            <CalcButton id="equals" applyValue={this.evaluate} value="=" />
+          </div>
+        </div>
+        
+      </div>
+    );
+  }
+}
+
+ReactDOM.render(<Calculator />, document.getElementById("calculator-main"));
